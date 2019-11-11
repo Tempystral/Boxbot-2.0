@@ -130,3 +130,5 @@ dmypy.json
 .pyre/
 
 
+.config/config.json
+.config/patterns.txt
