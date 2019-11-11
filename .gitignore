@@ -1,6 +1,6 @@
 # Custom
-.vscode/
-.config/
+.vscode/*
+.config/*
 .secrets.*
 
 # Byte-compiled / optimized / DLL files
