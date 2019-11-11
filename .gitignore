@@ -1,6 +1,6 @@
 # Custom
-boxbot/.vscode/*
-boxbot/.config/*
+.vscode/
+.config/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
