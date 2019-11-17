@@ -90,6 +90,13 @@ class Sauce(commands.Cog):
         self._extractors = [Twitter(), ESixPool(), Furaffinity()]
         self._session = aiohttp.ClientSession()
 
+    def __remove_spoilered_text(self, message) -> str:
+            '''quick hacky way to remove spoilers, doesn't handle ||s in code blocks'''
+            strs = re.split('(\|\|)', message.content)
+            despoilered = ''.join(strs[::4]) # Get every 4th string
+            despoilered += strs[-1] if len(strs) % 4 == 3 else ''
+            return despoilered
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.guild is None:
@@ -97,6 +104,8 @@ class Sauce(commands.Cog):
 
         if message.author.bot:
             return
+
+        despoilered_message = self.__remove_spoilered_text(message)
 
         links = []
         for extractor in self._extractors:
