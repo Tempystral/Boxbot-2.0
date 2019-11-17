@@ -1,12 +1,12 @@
-import json
+import json, os, anyconfig
 
 from discord.ext import commands
 
 # BoxBot extends commands.Bot, which extends discord.Client
 class BoxBot(commands.Bot):
     def __init__(self):
-        with open('./.config/config.json') as configfile:
-            self.config = json.load(configfile)
+        #with open('./config/config.json') as configfile:
+        self.config = anyconfig.load("./config/settings.toml") #json.load(configfile)
         # Default command prefix is !
         super().__init__( command_prefix = self.config.get('command_prefix', '!') )
         for ext in self.config.get('extensions', []):

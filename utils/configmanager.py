@@ -1,5 +1,7 @@
-import json, glob
+import json, glob, anyconfig
 from datetime import datetime
+
+# Currently unused!
 
 #    Class: ConfigManager
 # Function: To store and load settings for BoxBot 2.0
@@ -20,7 +22,7 @@ from datetime import datetime
   #     - Value may itself be a property/value pair
 
 class ConfigManager:
-  def __init__(self, config_file=".config/config.json", max_backups=10):
+  def __init__(self, config_file="./config/settings.toml", max_backups=10):
     self._config_file = config_file
     self._max_backups = max_backups
     self._encoder = json.JSONEncoder(check_circular=True, indent=4)
@@ -33,18 +35,19 @@ class ConfigManager:
     with open(f"config.backup_{datetime.now()}.json".replace(":", "_"), "x") as f:
       f.write(outStr)
 
-  '''Save config model to a file'''
+  
   def saveConfig(self, config):
+    '''Save config model to a file'''
     self.__backupConfigFile()
     outStr = self._encoder.encode(config)
     with open(self._config_file, "w") as f:
       f.write(outStr)
 
-  '''Load config model from a file'''
+  
   def loadConfig(self) -> dict():
+    '''Load config model from a file'''
     try:
-      with open(self._config_file) as cf:
-            config = json.load(cf)
+      anyconfig.load(self._config_file)
     except FileNotFoundError:
       config = {}
     return config

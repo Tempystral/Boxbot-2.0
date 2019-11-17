@@ -1,12 +1,16 @@
 import re, os, logging, aiohttp
+from dynaconf import settings
 
 from watcher import fourchanaio as fourchan
 
 class BoardWatcher:
-	def __init__(self, patternFile=".config/patterns.txt"):
-		self._last_modified_time = 0
-		self._patternFile = patternFile
+	def __init__(self, patternfile, regex):
+		self._bot = bot
 		self._chan = fourchan.Chan()
+		self._last_modified_time = 0
+		
+		self._patternFile = patternfile
+		self._regex = regex # r'(.+)\|(.*)\|(.+)'
 
 		self._patterns = {}
 		self._exclude_patterns = {}
@@ -81,7 +85,7 @@ class BoardWatcher:
 				if line.strip()[0] == '#' or len(line.strip()) == 0:
 					continue
 				# Match options using a regex
-				match = re.match(r'(.+)\|(.*)\|(.+)', line)				#match = re.match(r'\/(.*)\/(\w*);(.*)', line)
+				match = re.match(self._regex, line)				#match = re.match(r'\/(.*)\/(\w*);(.*)', line)
 				try: # Parse arguments
 					flags, exclude = self.parse_args(match.group(2))		# Tempystral - I don't particularly love multiple returns of unrelated types but it LOOKS clean....
 					# Get a list of patterns with regex options
@@ -112,7 +116,7 @@ class BoardWatcher:
 	
 	def addNewPattern(self, pattern):
 		'''Add pattern to the patternfile and return success'''
-		match = re.match(r'(.+)\|(.*)\|(.+)', pattern)
+		match = re.match(self._regex, pattern)
 		if match:
 			with open(self._patternFile, "a") as f:
 				f.write(f"\n{pattern}")

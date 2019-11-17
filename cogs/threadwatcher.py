@@ -8,17 +8,20 @@ from watcher.boardwatcher2 import BoardWatcher
 class ThreadWatcher(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.watcher = BoardWatcher()
+        self.watcher = BoardWatcher(patternfile=bot.config["boardwatcher"]["patternfile"],
+                                    regex=bot.config["boardwatcher"]["regex"])
         self.active = False
         self.interval = 300
         self._role = ''
         self._notify_channel = ''
 
     async def _update(self, context):
-        threads = await self.watcher.update() # to become awaitable
+        '''Update the boardwatcher'''
+        threads = await self.watcher.update()
         return threads
 
     async def _getNewThreads(self, context):
+        '''Retrieve new threads from boardwatcher'''
         threads = await self._update(context)
         if len(threads) > 0:
             urls = [f"{thread.url}" for thread in threads]

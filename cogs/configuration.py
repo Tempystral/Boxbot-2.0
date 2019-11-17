@@ -2,7 +2,7 @@ import asyncio
 from cogs.utils import checks
 
 from discord.ext import commands
-from utils.configmanager import ConfigManager
+from dynaconf import settings
 
 class Config(commands.Cog):
     def __init__(self, bot):
@@ -17,7 +17,7 @@ class Config(commands.Cog):
     
     @configuration.command()
     async def update(self, context):
-        
+        #settings.reload()
         pass
 
     @configuration.command()
