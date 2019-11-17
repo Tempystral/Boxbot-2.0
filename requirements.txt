@@ -1,4 +1,5 @@
 aiohttp
 discord
-dynaconf
+anyconf
 html2text
+bs4

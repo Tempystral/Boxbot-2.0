@@ -12,8 +12,8 @@ class ThreadWatcher(commands.Cog):
                                     regex=bot.config["boardwatcher"]["regex"])
         self.active = False
         self.interval = 300
-        self._role = ''
-        self._notify_channel = ''
+        self._role = bot.config["notifyrole"]
+        self._notify_channel = bot.config["notifychannel"]
 
     async def _update(self, context):
         '''Update the boardwatcher'''

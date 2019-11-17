@@ -5,7 +5,6 @@ from watcher import fourchanaio as fourchan
 
 class BoardWatcher:
 	def __init__(self, patternfile, regex):
-		self._bot = bot
 		self._chan = fourchan.Chan()
 		self._last_modified_time = 0
 		
@@ -92,6 +91,8 @@ class BoardWatcher:
 					patterns = self.parse_patterns(match.group(1), flags)
 				except re.error as e:
 					logging.warning(f"couldn't compile \"{line.rstrip()}\" on line {count+1}:\n{e}")
+				except AttributeError as e:
+					logging.warning(f"Line \"{line.rstrip()}\" on line {count+1} resulted in a NoneType:\n{e}")
 				else:
 					boards = self.parse_boards(match.group(3))
 					if exclude:

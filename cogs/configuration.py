@@ -7,7 +7,7 @@ from dynaconf import settings
 class Config(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.manager = ConfigManager()
+        #self.manager = ConfigManager()
 
     @commands.has_any_role(["Bot Developer"])
     @commands.group(pass_context=True, aliases=["settings", "config"])
