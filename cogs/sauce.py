@@ -10,15 +10,31 @@ from bs4 import BeautifulSoup
 
 
 class BaseInfoExtractor(ABC):
-    '''
-    Abstract parent class for extractors
-    '''
+    '''Abstract parent class for extractors.'''
     pattern: Pattern
     hotlinking_allowed: bool
     skip_first: bool
 
     @abstractmethod
     def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
+        '''
+    Returns
+    -------
+    images : list --
+        A list of image urls
+
+    title : str --
+        A title, if any
+
+    description : str --
+        A description, if any
+    
+    name: str --
+        Name of the post author, if any
+    
+    icon_url : str --
+        The url of an icon, if any
+    '''
         pass
 
     def findall(self, string: str) -> Iterable[Match]:
@@ -91,7 +107,7 @@ class Sauce(commands.Cog):
         self._session = aiohttp.ClientSession()
 
     def __remove_spoilered_text(self, message) -> str:
-        '''quick hacky way to remove spoilers, doesn't handle ||s in code blocks'''
+        '''Quick hacky way to remove spoilers, doesn't handle ||s in code blocks'''
         strs = message.content.split('||')
         despoilered = ''.join(strs[::2]) # Get every 4th string
         despoilered += strs[-1] if len(strs) % 2 == 0 else ''
@@ -105,11 +121,11 @@ class Sauce(commands.Cog):
         if message.author.bot:
             return
 
+        # Filter and extract links from message
         despoilered_message = self.__remove_spoilered_text(message)
-
         links = []
         for extractor in self._extractors:
-            matches = extractor.findall(message.content)
+            matches = extractor.findall(despoilered_message)
             if matches:
                 links.extend([(match, extractor) for match in matches])
                 break # Assumption: We won't match more than one site to a link, so it's safe to break as soon as we get a match.
@@ -121,7 +137,7 @@ class Sauce(commands.Cog):
                 image_limit = 4
                 info = await extractor.extract(match, self._session)
                 if info is None:
-                    continue
+                    continue    # Skip bad links
                 images = info['images']
                 total_images = len(images)
 
@@ -129,7 +145,7 @@ class Sauce(commands.Cog):
                 author_info = {k: info[k] for k in info.keys() & ['name', 'icon_url']}
                 embed = None
                 if embed_info:
-                    embed = Embed(**embed_info)
+                    embed = Embed(**embed_info) # Construct a new embed with arguments from embed_info
                 if author_info and embed is not None:
                     embed.set_author(**author_info)
 
