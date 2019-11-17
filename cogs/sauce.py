@@ -91,11 +91,11 @@ class Sauce(commands.Cog):
         self._session = aiohttp.ClientSession()
 
     def __remove_spoilered_text(self, message) -> str:
-            '''quick hacky way to remove spoilers, doesn't handle ||s in code blocks'''
-            strs = re.split('(\|\|)', message.content)
-            despoilered = ''.join(strs[::4]) # Get every 4th string
-            despoilered += strs[-1] if len(strs) % 4 == 3 else ''
-            return despoilered
+        '''quick hacky way to remove spoilers, doesn't handle ||s in code blocks'''
+        strs = message.content.split('||')
+        despoilered = ''.join(strs[::2]) # Get every 4th string
+        despoilered += strs[-1] if len(strs) % 2 == 0 else ''
+        return despoilered
 
     @commands.Cog.listener()
     async def on_message(self, message):
