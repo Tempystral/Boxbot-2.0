@@ -57,10 +57,35 @@ class Twitter(BaseInfoExtractor):
             urls = [i['data-image-url'] for i in soup.select('div.js-adaptive-photo')]
             return {'images': urls}
 
+class ESixPost(BaseInfoExtractor):
+    '''Extractor to source E621 and E926 direct image links'''
+    def __init__(self):
+        # https://static1.e926.net/data/41/a9/41a9979f8c255320b0e7a9dfbc3d13e6.png
+        self.pattern = re.compile(r'https?://static1\.(?P<site>e621|e926)\.net/data/(sample/)?../../(?P<md5>\w+)\..*', re.IGNORECASE)
+        self.hotlinking_allowed = True
+        self.skip_first = False
+
+    async def extract(self, url: Match, session: aiohttp.ClientSession) -> Optional[Dict]:
+        image_md5 = url.groupdict()['md5']
+        request_url = 'https://e621.net/post/show.json?md5=' + image_md5
+        async with session.get(request_url, headers={'User-Agent': 'sauce/0.1'}) as response:
+            text = await response.read()
+            data = json.loads(text)
+            post_url = "https://e621.net/post/show/" + str(data.get("id"))
+            return {'images': [post_url]}
+            '''
+            artists = [data["artist"][k] for k in data["artist"].keys()]
+            return {'name': ", ".join([a.capitalize() for a in artists if a != "conditional_dnp"]),
+                    'description': data.get('description'),
+                    'images': urls,
+                    'count': data['post_count']
+                    }
+            '''
 
 class ESixPool(BaseInfoExtractor):
+    '''Extractor for E621 and E926 pools'''
     def __init__(self):
-        self.pattern = re.compile(r'https?://e(?:621|926)\.net/pool/show/(?P<id>\d+)', re.IGNORECASE)
+        self.pattern = re.compile(r'https?://(?P<site>e621|e926)\.net/pool/show/(?P<id>\d+)', re.IGNORECASE)
         self.hotlinking_allowed = True
         self.skip_first = False
 
@@ -71,14 +96,20 @@ class ESixPool(BaseInfoExtractor):
         async with session.get(request_url, headers={'User-Agent': 'sauce/0.1'}) as response:
             text = await response.read()
             data = json.loads(text)
-            urls = [i['file_url'] for i in data['posts']]
+            if url.groupdict()['site'] == 'e926':
+                urls = [i['file_url'] for i in data['posts'] if i['rating'] == 's']
+            else:
+                urls = [i['file_url'] for i in data['posts']]
             title = data.get('name')
             if title is not None:
                 title = title.replace('_', ' ')
             else:
                 title = None
-            return {'title': title, 'description': data.get('description'), 'images': urls}
-
+            return {'title': title,
+                    'description': data.get('description'),
+                    'images': urls,
+                    'count': data['post_count']
+                    }
 
 class Furaffinity(BaseInfoExtractor):
     def __init__(self):
@@ -96,14 +127,23 @@ class Furaffinity(BaseInfoExtractor):
             data = json.loads(text)
             if data['rating'] == 'general':
                 return None
-            return {'title': data['title'], 'images': [data['image_url']],
-                    'name': data['author'], 'icon_url': data['image_url']}
+            return {'title': data['title'],
+                    'images': [data['image_url']],
+                    'name': data['author'],
+                    'icon_url': data['image_url']
+                    }
 
+    '''
+    Future hosts to sauce:
+        Imgur
+        Pixiv
+        Reddit (low-priority)
+    '''
 
 class Sauce(commands.Cog):
     def __init__(self, bot):
         self._bot = bot
-        self._extractors = [Twitter(), ESixPool(), Furaffinity()]
+        self._extractors = [Twitter(), ESixPool(), ESixPost(), Furaffinity()]
         self._session = aiohttp.ClientSession()
 
     def __remove_spoilered_text(self, message) -> str:
