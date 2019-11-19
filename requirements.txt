@@ -3,3 +3,6 @@ discord
 anyconf
 html2text
 bs4
+requests
+requests-toolbelt
+pixivpy
