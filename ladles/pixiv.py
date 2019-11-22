@@ -45,12 +45,12 @@ class Pixiv(BaseInfoExtractor):
         if details.illust.x_restrict == 0:
             if page_count == 1:
                 return
-            images = [i.image_urls.medium for i in details.illust.meta_pages[1:]]
+            images = [i.image_urls.original for i in details.illust.meta_pages[1:]]
         else:
             if page_count == 1:
-                images = [details.illust.image_urls.medium]
+                images = [details.illust.meta_single_page.original_image_url]
             else:
-                images = [i.image_urls.medium for i in details.illust.meta_pages]
+                images = [i.image_urls.original for i in details.illust.meta_pages]
 
         return {'count': page_count, 'images': images}
 
