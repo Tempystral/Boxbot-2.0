@@ -1,0 +1,4 @@
+# Pattern style: phrase1, phrase2, phrase3 | arg1, arg2 | board1, board2, board3
+# Arguments: i = ignore case, e = exclude
+test, pattern | i | b, trash
+testpattern | i, e | b, trash
