@@ -1,0 +1,21 @@
+# Keep these values secret
+token = ""
+serverid = ""
+commandprefix = "!"
+extensions = [
+  "cogs.admin",
+  "cogs.whoami",
+  "cogs.threadwatcher",
+  "cogs.configuration",
+  "cogs.sauce"
+]
+
+[boardwatcher]
+  patternfile = "./config/patterns.txt"
+  regex = '(.+)\|(.*)\|(.+)' # Equivalent to raw string r'(.+)\|(.*)\|(.+)'
+  notifychannel = ""
+  notifyrole = ""
+
+[pixiv]
+  email = ""
+  password = '' # Single quotes force value to be read as raw string
