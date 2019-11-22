@@ -26,7 +26,7 @@ class ConfigManager:
   #      : Add code to maintain up to max_backups number of backup configs
   def __backupConfigFile(self):
     '''Backup existing config file to a new timestamped file'''
-    anyconfig.dump(self.config, f"config.backup_{datetime.now()}".replace(":", "_") + ".toml")
+    anyconfig.dump(self.config, f"./config/config.backup_{datetime.now()}".replace(":", "_") + ".toml")
   
   def saveConfig(self):
     '''Save config model to a file'''

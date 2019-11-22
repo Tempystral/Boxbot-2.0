@@ -1,6 +1,6 @@
 aiohttp
 asyncio
-discord
+discord.py
 anyconfig
 scalpl
 html2text
