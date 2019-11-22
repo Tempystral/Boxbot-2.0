@@ -1,6 +1,6 @@
 # Custom
 .vscode/*
-.config/*
+config/*
 .secrets.*
 test.py
 
@@ -130,10 +130,3 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-
-.config/config.json
-.config/patterns.txt
-config/settings.toml
-config/patterns.txt
-config/patterns.txt
-config/settings.toml
