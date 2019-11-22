@@ -2,9 +2,9 @@ aiohttp
 asyncio
 discord.py
 anyconfig
+toml
 scalpl
 html2text
 bs4
 requests
-requests-toolbelt
 pixivpy-async
