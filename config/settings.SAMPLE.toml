@@ -1,6 +1,6 @@
-# Keep these values secret
-token = ""
-serverid = ""
+# Settings filename should be settings.toml
+token = "bot token goes here" # Keep this value secret!
+serverid = "1234567890"
 commandprefix = "!"
 extensions = [
   "cogs.admin",
@@ -8,14 +8,14 @@ extensions = [
   "cogs.threadwatcher",
   "cogs.configuration",
   "cogs.sauce"
-]
+] # Default extensions, no need to change
 
 [boardwatcher]
   patternfile = "./config/patterns.txt"
   regex = '(.+)\|(.*)\|(.+)' # Equivalent to raw string r'(.+)\|(.*)\|(.+)'
-  notifychannel = ""
-  notifyrole = ""
+  notifychannel = "1234567890" # Channel ID
+  notifyrole = "" # String name of role, i.e. "Thread_Notify"
 
 [pixiv]
-  email = ""
+  email = ""    # Login email address for Pixiv
   password = '' # Single quotes force value to be read as raw string
