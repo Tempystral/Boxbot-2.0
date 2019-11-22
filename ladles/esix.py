@@ -11,7 +11,6 @@ class ESixPool(BaseInfoExtractor):
     def __init__(self):
         self.pattern = r'https?://(?P<site>e621|e926)\.net/pool/show/(?P<id>\d+)'
         self.hotlinking_allowed = True
-        self.skip_first = False
 
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
         groups = re.match(self.pattern, url).groupdict()
@@ -38,7 +37,6 @@ class ESixPost(BaseInfoExtractor):
     def __init__(self):
         self.pattern = r'https?://static1\.(?P<site>e621|e926)\.net/data/(sample/)?../../(?P<md5>\w+)\..*'
         self.hotlinking_allowed = True
-        self.skip_first = False
 
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
         image_md5 = re.match(self.pattern, url).groupdict()['md5']

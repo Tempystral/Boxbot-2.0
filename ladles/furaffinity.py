@@ -11,7 +11,6 @@ class Furaffinity(BaseInfoExtractor):
     def __init__(self):
         self.pattern = r'https?://www.furaffinity.net/(?:view|full)/(?P<id>\d+)'
         self.hotlinking_allowed = True
-        self.skip_first = False
 
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
         submission_id = re.match(self.pattern, url).groupdict()['id']

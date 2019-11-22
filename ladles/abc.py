@@ -7,7 +7,6 @@ import aiohttp
 class BaseInfoExtractor(ABC):
     pattern: str
     hotlinking_allowed: bool
-    skip_first: bool
 
     @abstractmethod
     def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:

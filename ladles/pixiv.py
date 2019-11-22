@@ -17,7 +17,6 @@ class Pixiv(BaseInfoExtractor):
         self.direct_pattern = r'https://i.pximg.net/\S+/(?P<id2>\d+)_p(?P<page>\d+)(?:_\w+)?\.\w+'
         self.pattern = self.direct_pattern + '|' + self.illust_pattern
         self.hotlinking_allowed = False
-        self.skip_first = False
 
         loop = asyncio.get_event_loop()
         self.pixivapi = AppPixivAPI()

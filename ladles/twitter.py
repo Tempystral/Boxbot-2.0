@@ -12,7 +12,6 @@ class Twitter(BaseInfoExtractor):
     def __init__(self):
         self.pattern = r'https?://(?:mobile\.)?twitter\.com/[a-z0-9_]+/status/(?P<id>\d+)'
         self.hotlinking_allowed = True
-        self.skip_first = True
 
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
         tweet_id = re.match(self.pattern, url).groupdict()['id']
@@ -22,4 +21,4 @@ class Twitter(BaseInfoExtractor):
             data = json.loads(text)
             soup = BeautifulSoup(data['tweet_html'], "html.parser")
             urls = [i['data-image-url'] for i in soup.select('div.js-adaptive-photo')]
-            return {'images': urls}
+            return {'images': urls[1:]}

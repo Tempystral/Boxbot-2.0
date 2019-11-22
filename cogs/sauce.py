@@ -61,9 +61,6 @@ class Sauce(commands.Cog):
                 embed.set_author(**author_info)
 
             # TODO: handle embedding better, especially when the first post is already embedded by discord
-            if extractor.skip_first:
-                if total_images == 1:
-                    continue
 
             response_text = ''
             if total_images > 1:
@@ -79,7 +76,7 @@ class Sauce(commands.Cog):
                     image_limit -= 1
                     
                 if len(images[:image_limit]) > 0:
-                    response_text += '\n'.join(images[int(extractor.skip_first):image_limit])
+                    response_text += '\n'.join(images[:image_limit])
                 if response_text:
                     await message.channel.send(response_text)
             else:
