@@ -3,17 +3,17 @@ import os, asyncio, logging
 import cogs.utils.checks as checks
 from discord.ext import commands
 from watcher.boardwatcher2 import BoardWatcher
-
+from utils import boxconfig
 
 class ThreadWatcher(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.watcher = BoardWatcher(patternfile=bot.config["boardwatcher"]["patternfile"],
-                                    regex=bot.config["boardwatcher"]["regex"])
+        self.watcher = BoardWatcher(patternfile=boxconfig.get("boardwatcher.patternfile"),
+                                    regex=boxconfig.get("boardwatcher.regex"))
         self.active = False
         self.interval = 300
-        self._role = bot.config["notifyrole"]
-        self._notify_channel = bot.config["notifychannel"]
+        self._role = boxconfig.get("boardwatcher.notifyrole")
+        self._notify_channel = boxconfig.get("boardwatcher.notifychannel")
 
     async def _update(self, context):
         '''Update the boardwatcher'''

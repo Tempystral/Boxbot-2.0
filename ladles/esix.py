@@ -9,18 +9,20 @@ from . import BaseInfoExtractor
 
 class ESixPool(BaseInfoExtractor):
     def __init__(self):
-        self.pattern = re.compile(r'https?://(?P<site>e621|e926)\.net/pool/show/(?P<id>\d+)', re.IGNORECASE)
+        self.pattern = r'https?://(?P<site>e621|e926)\.net/pool/show/(?P<id>\d+)'
         self.hotlinking_allowed = True
         self.skip_first = False
 
-    async def extract(self, url: Match, session: aiohttp.ClientSession) -> Optional[Dict]:
-        pool_id = url.groupdict()['id']
+    async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
+        groups = re.match(self.pattern, url).groupdict()
+        pool_id = groups['id']
+        pool_id = re.match(self.pattern, url).groupdict()['id']
 
         request_url = 'https://e621.net/pool/show.json?id=' + pool_id
         async with session.get(request_url, headers={'User-Agent': 'sauce/0.1'}) as response:
             text = await response.read()
             data = json.loads(text)
-            if url.groupdict()['site'] == 'e926':
+            if groups['site'] == 'e926':
                 urls = [i['file_url'] for i in data['posts'] if i['rating'] == 's']
             else:
                 urls = [i['file_url'] for i in data['posts']]
@@ -34,12 +36,12 @@ class ESixPool(BaseInfoExtractor):
 class ESixPost(BaseInfoExtractor):
     '''Extractor to source E621 and E926 direct image links'''
     def __init__(self):
-        self.pattern = re.compile(r'https?://static1\.(?P<site>e621|e926)\.net/data/(sample/)?../../(?P<md5>\w+)\..*', re.IGNORECASE)
+        self.pattern = r'https?://static1\.(?P<site>e621|e926)\.net/data/(sample/)?../../(?P<md5>\w+)\..*'
         self.hotlinking_allowed = True
         self.skip_first = False
 
-    async def extract(self, url: Match, session: aiohttp.ClientSession) -> Optional[Dict]:
-        image_md5 = url.groupdict()['md5']
+    async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
+        image_md5 = re.match(self.pattern, url).groupdict()['md5']
         request_url = 'https://e621.net/post/show.json?md5=' + image_md5
         async with session.get(request_url, headers={'User-Agent': 'sauce/0.1'}) as response:
             text = await response.read()

@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Match, Optional, Dict
+from typing import Optional, Dict
 
 import aiohttp
 from bs4 import BeautifulSoup
@@ -10,12 +10,12 @@ from . import BaseInfoExtractor
 
 class Twitter(BaseInfoExtractor):
     def __init__(self):
-        self.pattern = re.compile(r'https?://(?:mobile\.)?twitter\.com/[a-z0-9_]+/status/(?P<id>\d+)', re.IGNORECASE)
+        self.pattern = r'https?://(?:mobile\.)?twitter\.com/[a-z0-9_]+/status/(?P<id>\d+)'
         self.hotlinking_allowed = True
         self.skip_first = True
 
-    async def extract(self, url: Match, session: aiohttp.ClientSession) -> Optional[Dict]:
-        tweet_id = url.groupdict()['id']
+    async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
+        tweet_id = re.match(self.pattern, url).groupdict()['id']
 
         async with session.get('https://twitter.com/i/tweet/stickersHtml?id=' + tweet_id) as response:
             text = await response.read()

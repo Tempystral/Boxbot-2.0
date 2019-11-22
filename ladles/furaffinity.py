@@ -1,6 +1,6 @@
 import json
 import re
-from typing import Match, Optional, Dict
+from typing import Optional, Dict
 
 import aiohttp
 
@@ -9,12 +9,12 @@ from . import BaseInfoExtractor
 
 class Furaffinity(BaseInfoExtractor):
     def __init__(self):
-        self.pattern = re.compile(r'https?://www.furaffinity.net/(?:view|full)/(?P<id>\d+)', re.IGNORECASE)
+        self.pattern = r'https?://www.furaffinity.net/(?:view|full)/(?P<id>\d+)'
         self.hotlinking_allowed = True
         self.skip_first = False
 
-    async def extract(self, url: Match, session: aiohttp.ClientSession) -> Optional[Dict]:
-        submission_id = url.groupdict()['id']
+    async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
+        submission_id = re.match(self.pattern, url).groupdict()['id']
 
         # NOTE: this api doesn't provide submission descriptions
         request_url = 'https://bawk.space/fapi/submission/' + submission_id
@@ -23,5 +23,4 @@ class Furaffinity(BaseInfoExtractor):
             data = json.loads(text)
             if data['rating'] == 'general':
                 return None
-            return {'title': data['title'], 'images': [data['image_url']],
-                    'name': data['author'], 'icon_url': data['image_url']}
+            return {'images': [data['image_url']]}

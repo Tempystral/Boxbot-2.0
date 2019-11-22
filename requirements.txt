@@ -1,8 +1,10 @@
 aiohttp
+asyncio
 discord
-anyconf
+anyconfig
+scalpl
 html2text
 bs4
 requests
 requests-toolbelt
-pixivpy
+pixivpy-async

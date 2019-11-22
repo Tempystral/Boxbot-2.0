@@ -31,7 +31,7 @@ class Sauce(commands.Cog):
         despoilered_message = self.__remove_spoilered_text(message)
         links = []
         for extractor in self._extractors:
-            matches = extractor.findall(despoilered_message)
+            matches = extractor.finditer(despoilered_message)
             if matches:
                 links.extend([(match, extractor) for match in matches])
                 break # Assumption: We won't match more than one site to a link, so it's safe to break as soon as we get a match.

@@ -1,5 +1,4 @@
 import re, os, logging, aiohttp
-from dynaconf import settings
 
 from watcher import fourchanaio as fourchan
 

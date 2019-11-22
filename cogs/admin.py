@@ -2,6 +2,7 @@ import asyncio
 from .utils import checks
 
 from discord.ext import commands
+from utils import boxconfig
 
 class Admin(commands.Cog):
     def __init__(self, bot):
@@ -12,6 +13,7 @@ class Admin(commands.Cog):
     async def shutdown(self, ctx):
         """Shuts off the bot"""
         await ctx.send("Shutting down...")
+        boxconfig.saveConfig()
         exit()
 
 def setup(bot):
