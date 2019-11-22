@@ -2,6 +2,8 @@
 .vscode/*
 .secrets.*
 test.py
+config/settings.toml
+config/patterns.txt
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
