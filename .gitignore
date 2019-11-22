@@ -135,3 +135,5 @@ dmypy.json
 .config/patterns.txt
 config/settings.toml
 config/patterns.txt
+config/patterns.txt
+config/settings.toml
