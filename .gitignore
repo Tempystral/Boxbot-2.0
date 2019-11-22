@@ -1,6 +1,5 @@
 # Custom
 .vscode/*
-config/*
 .secrets.*
 test.py
 
