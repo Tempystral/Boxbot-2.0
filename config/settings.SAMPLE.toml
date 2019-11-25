@@ -19,3 +19,7 @@ extensions = [
 [pixiv]
   email = ""    # Login email address for Pixiv
   password = '' # Single quotes force value to be read as raw string
+
+[imgur]
+  clientid = 'client id goes here'  # These values are assigned to your application
+  secret = 'application secret'     # When you register it with Imgur

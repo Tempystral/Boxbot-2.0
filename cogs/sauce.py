@@ -9,7 +9,7 @@ from ladles import *
 class Sauce(commands.Cog):
     def __init__(self, bot):
         self._bot = bot
-        self._extractors = [(re.compile(e.pattern), e) for e in [ESixPool(), ESixPost(), Furaffinity(), Pixiv()]] # Twitter() is unnecessary as of 18/11/2019
+        self._extractors = [(re.compile(e.pattern), e) for e in [ESixPool(), ESixPost(), Furaffinity(), Pixiv(), Imgur()]] # Twitter() is unnecessary as of 18/11/2019
         self._session = aiohttp.ClientSession()
 
     def __remove_spoilered_text(self, message) -> str:

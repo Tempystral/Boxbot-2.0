@@ -2,7 +2,6 @@ import asyncio
 from cogs.utils import checks
 
 from discord.ext import commands
-from dynaconf import settings
 
 class Config(commands.Cog):
     def __init__(self, bot):
