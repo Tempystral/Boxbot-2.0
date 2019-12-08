@@ -27,7 +27,7 @@ class BoardWatcher:
 			logger.info("Updating pattern list")
 			self.load_patterns(self._patternFile)
 			self._last_modified_time = t
-			logger.debug("Patterns:\n" + self._patterns)
+			#logger.debug("Patterns:\n" + [self._patterns])
 		newThreads = []
 		# Clean threadlist, then update boards
 		await self.cleanup_untracked_boards()

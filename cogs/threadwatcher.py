@@ -48,7 +48,7 @@ class ThreadWatcher(commands.Cog):
         self.active = True
         await context.send("Started checking for threads.")
         while self.active:
-            logger.debug("Started checking for threads")
+            logger.info("Started checking for threads")
             await self._getNewThreads(context) #pylint false positive
             await asyncio.sleep(self.interval)
 
