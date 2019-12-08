@@ -3,7 +3,7 @@ import asyncio
 import aiohttp
 import discord
 from discord.ext import commands
-
+from utils import logger
 from ladles import *
 
 class Sauce(commands.Cog):
@@ -36,6 +36,8 @@ class Sauce(commands.Cog):
                 links.extend([(match, extractor) for match in matches])
 
         links.sort(key=lambda x: x[0].start())
+        
+        logger.debug(f"Link(s) matched: {links}")
 
         for match, extractor in links[:3]:
             image_limit = 3
