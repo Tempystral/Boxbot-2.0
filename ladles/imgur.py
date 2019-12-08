@@ -1,13 +1,12 @@
 import json
 import re
-import logging
 from typing import Dict, Optional
 
 import aiohttp
 import anyconfig
 import scalpl
 
-from utils import boxconfig
+from utils import boxconfig, logger
 
 from . import BaseInfoExtractor
 
@@ -41,4 +40,4 @@ class Imgur(BaseInfoExtractor):
                         "count": count
                         }
             else:
-                logging.warning(f"Cannot retrieve album with ID {gallery_id}: {album.get('data.error')}")
+                logger.warning(f"Cannot retrieve album with ID {gallery_id}: {album.get('data.error')}")

@@ -1,9 +1,9 @@
-import os, asyncio, logging
+import os, asyncio
 
 import cogs.utils.checks as checks
 from discord.ext import commands
 from watcher.boardwatcher2 import BoardWatcher
-from utils import boxconfig
+from utils import boxconfig, logger
 
 class ThreadWatcher(commands.Cog):
     def __init__(self, bot):
@@ -25,11 +25,11 @@ class ThreadWatcher(commands.Cog):
         threads = await self._update(context)
         if len(threads) > 0:
             urls = [f"{thread.url}" for thread in threads]
-            logging.info(f"New threads: {urls}")
+            logger.info(f"New threads: {urls}")
             await context.send("{role} Found {n} new threads(s):\n{ts}"
                                .format(role = self._role, n=len(urls), ts="\n".join(urls)))
         else:
-            logging.info("No new threads")
+            logger.info("No new threads")
         return len(threads)
 
     @checks.has_role("Bot Developer")
@@ -48,7 +48,7 @@ class ThreadWatcher(commands.Cog):
         self.active = True
         await context.send("Started checking for threads.")
         while self.active:
-            logging.info("Start checking for threads")
+            logger.debug("Started checking for threads")
             await self._getNewThreads(context) #pylint false positive
             await asyncio.sleep(self.interval)
 
@@ -118,7 +118,7 @@ class ThreadWatcher(commands.Cog):
                 await context.send(f"I'll notify {role_name} of new threads.")
                 return
         await context.send("No such role found")
-        logging.warning(f"couldn't find role '{role_name}'")
+        logger.warning(f"Tried to set notification role \"{role_name}\", but no such role was found")
 
     @threadwatcher.command()
     async def setnotifychannel(self, context, channelName):
@@ -130,7 +130,7 @@ class ThreadWatcher(commands.Cog):
                 await context.send(f"I'll post new threads to {channel.mention}.")
                 return
         await context.send(f"Channel \"{channelName}\" not found")
-        logging.warning(f"Channel \"{channelName}\" not found")
+        logger.warning(f"Tried to set notification channel \"{channelName}\", but no such channel was found")
 
 def setup(bot):
     bot.add_cog(ThreadWatcher(bot))

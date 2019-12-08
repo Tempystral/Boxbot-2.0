@@ -1,6 +1,7 @@
-import re, os, logging, aiohttp
+import re, os, aiohttp
 
 from watcher import fourchanaio as fourchan
+from utils import logger
 
 class BoardWatcher:
 	def __init__(self, patternfile, regex):
@@ -17,16 +18,16 @@ class BoardWatcher:
 		try:
 			self.load_patterns(self._patternFile)
 		except FileNotFoundError:
-			logging.warning("Patterns file not found")
+			logger.critical("Patterns file not found!")
 
 	async def update(self):
 		'''Refresh the internal database and return a list of new threads'''
 		t = os.path.getmtime(self._patternFile)
 		if t > self._last_modified_time:
-			logging.info("Updating pattern list")
+			logger.info("Updating pattern list")
 			self.load_patterns(self._patternFile)
 			self._last_modified_time = t
-			logging.debug(self._patterns)
+			logger.debug("Patterns:\n" + self._patterns)
 		newThreads = []
 		# Clean threadlist, then update boards
 		await self.cleanup_untracked_boards()
@@ -36,13 +37,13 @@ class BoardWatcher:
 		return newThreads
 
 	async def update_board(self, board):
-		logging.info(f"checking for new threads on {board}")
+		logger.info(f"checking for new threads on {board}")
 
 		# Get new threads from 4chan
 		liveThreads = await self._retrieve_threads(board)
 		self.cleanup_board(board, liveThreads)
 		
-		threadNos = [t.no for t in liveThreads]
+		#threadNos = [t.no for t in liveThreads]
 		newThreads = []
 		filtered = [i for i in liveThreads 
 								if 			any(map(lambda x: x.search(i.comment) or x.search(i.subject), self._patterns.get(board, [])))
@@ -52,7 +53,7 @@ class BoardWatcher:
 		for thread in filtered:
 			if thread.no not in self._tracked_threads[board]:
 				newThreads.append(thread)
-				logging.info(f"Started tracking {thread.url}")
+				logger.info(f"Started tracking {thread.url}")
 				self._tracked_threads[board][thread.no] = thread
 		return newThreads
 
@@ -62,7 +63,7 @@ class BoardWatcher:
 		for no in list(self._tracked_threads.setdefault(board, {})):
 			if not no in threadNos:
 				t = self._tracked_threads[board].pop(no)
-				logging.info(f"Stopped tracking {t.url}")
+				logger.info(f"Stopped tracking {t.url}")
 	
 	async def cleanup_untracked_boards(self):
 		'''Remove threads belonging to untracked boards'''
@@ -70,7 +71,7 @@ class BoardWatcher:
 		for board in untrackedBoards:
 			for no in self._tracked_threads[board]:
 				thread = self._tracked_threads[board][no]
-				logging.info(f"Stopped tracking {thread.url}")
+				logger.info(f"Stopped tracking {thread.url}")
 			self._tracked_threads.pop(board, None)
 			self._patterns.pop(board, None)
 			self._exclude_patterns.pop(board, None)
@@ -89,9 +90,9 @@ class BoardWatcher:
 					# Get a list of patterns with regex options
 					patterns = self.parse_patterns(match.group(1), flags)
 				except re.error as e:
-					logging.warning(f"couldn't compile \"{line.rstrip()}\" on line {count+1}:\n{e}")
+					logger.warning(f"couldn't compile \"{line.rstrip()}\" on line {count+1}:\n{e}")
 				except AttributeError as e:
-					logging.warning(f"Line \"{line.rstrip()}\" on line {count+1} resulted in a NoneType:\n{e}")
+					logger.critical(f"Line \"{line.rstrip()}\" on line {count+1} resulted in a NoneType:\n{e}")
 				else:
 					boards = self.parse_boards(match.group(3))
 					if exclude:
@@ -112,7 +113,7 @@ class BoardWatcher:
 	def setPatternFile(self, filepath):
 		self._patternFile = filepath
 		if (not os.path.exists(filepath)):
-			logging.warning(f"Pattern file does not exist at path {filepath}.")
+			logger.warning(f"Pattern file does not exist at path {filepath}.")
 	
 	def addNewPattern(self, pattern):
 		'''Add pattern to the patternfile and return success'''
@@ -162,7 +163,7 @@ class BoardWatcher:
 			threads = await self._chan.catalog(board)
 			return threads
 		except aiohttp.ClientError:
-			logging.warning("Failed to update threads due to a network error")
+			logger.warning("Failed to update threads due to a network error")
 			return []
 
 	def parse_patterns(self, argString, flags):

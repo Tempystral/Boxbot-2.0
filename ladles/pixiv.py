@@ -1,15 +1,18 @@
-from typing import Optional, Dict
-import re
 import asyncio
 import json
+import re
 from io import BytesIO
+from typing import Dict, Optional
 
 import aiohttp
-from pixivpy_async import *
+from pixivpy_async import AppPixivAPI
+from pixivpy_async.error import RetryExhaustedError
+
+from utils import boxconfig, logger
 
 from . import BaseInfoExtractor
-from utils import boxconfig
 
+_REQUESTS_KWARGS = {'verify': False}
 
 class Pixiv(BaseInfoExtractor):
     def __init__(self):
@@ -20,11 +23,14 @@ class Pixiv(BaseInfoExtractor):
 
         loop = asyncio.get_event_loop()
         self.pixivapi = AppPixivAPI()
-        loop.run_until_complete(
-            self.pixivapi.login(
-                username=boxconfig.get("pixiv.email"), #self.config['pixiv']['login'],
-                password=boxconfig.get("pixiv.password") #self.config['pixiv']['password'])
-        ))
+        try:
+            loop.run_until_complete(
+                self.pixivapi.login(
+                    username=boxconfig.get("pixiv.email"), #self.config['pixiv']['login'],
+                    password=boxconfig.get("pixiv.password") #self.config['pixiv']['password'])
+            ))
+        except RetryExhaustedError as e:
+            logger.critical("Could not login to Pixiv: " + str(e))
 
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
         if re.match(self.illust_pattern, url):

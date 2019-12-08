@@ -1,10 +1,9 @@
 import glob
 import json
-import logging
-from datetime import datetime
-
 import anyconfig
 import scalpl
+from datetime import datetime
+from .logger_setup import logger
 
 #    Class: ConfigManager
 # Function: To store and load settings for BoxBot 2.0
@@ -46,9 +45,9 @@ class ConfigManager:
   def put(self, keys:str, value):
     '''Register a value in config to a period-delimited property string'''
     try:
-      self.configuration[keys] = value
+      self.config[keys] = value
     except KeyError as e:
-      logging.warning(f"No value for property {keys}!\n{e}")
+      logger.warning(f"No value for property {keys}!\n{e}")
       return None
     return self.config.data
 

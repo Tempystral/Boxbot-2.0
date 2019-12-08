@@ -1,10 +1,10 @@
 from typing import Optional, List, Dict
 from datetime import datetime
 from itertools import chain
-import logging
 import aiohttp
 import asyncio
 from html2text import html2text
+from utils import logger
 
 
 class NetworkError(Exception):
@@ -71,13 +71,13 @@ class Chan:
                     data = await response.json()
             except aiohttp.ClientConnectionError:
                 if attempts < max_attempts:
-                    logging.warning(f"Connection error, retrying({attempts})")
+                    logger.warning(f"Connection error, retrying({attempts})")
                     await asyncio.sleep(5 * 1.5 ** attempts)
                 else:
                     raise
             except aiohttp.ClientResponseError as e:
                 if attempts < max_attempts:
-                    logging.warning(f"Response error {e.response.status}, retrying({attempts})")
+                    logger.warning(f"Response error {e.response.status}, retrying({attempts})")
                     await asyncio.sleep(5 * 1.5 ** attempts)
                 else:
                     raise
