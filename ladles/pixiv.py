@@ -29,6 +29,7 @@ class Pixiv(BaseInfoExtractor):
                     username=boxconfig.get("pixiv.email"), #self.config['pixiv']['login'],
                     password=boxconfig.get("pixiv.password") #self.config['pixiv']['password'])
             ))
+            logger.info("Logged in to Pixiv")
         except RetryExhaustedError as e:
             logger.critical("Could not login to Pixiv: " + str(e))
 

@@ -29,7 +29,7 @@ class ThreadWatcher(commands.Cog):
             await context.send("{role} Found {n} new threads(s):\n{ts}"
                                .format(role = self._role, n=len(urls), ts="\n".join(urls)))
         else:
-            logger.info("No new threads")
+            logger.debug("No new threads")
         return len(threads)
 
     @checks.has_role("Bot Developer")
@@ -48,7 +48,7 @@ class ThreadWatcher(commands.Cog):
         self.active = True
         await context.send("Started checking for threads.")
         while self.active:
-            logger.info("Started checking for threads")
+            logger.debug("Started checking for threads")
             await self._getNewThreads(context) #pylint false positive
             await asyncio.sleep(self.interval)
 

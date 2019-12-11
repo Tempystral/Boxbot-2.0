@@ -24,10 +24,9 @@ class BoardWatcher:
 		'''Refresh the internal database and return a list of new threads'''
 		t = os.path.getmtime(self._patternFile)
 		if t > self._last_modified_time:
-			logger.info("Updating pattern list")
+			logger.debug("Updating pattern list")
 			self.load_patterns(self._patternFile)
 			self._last_modified_time = t
-			#logger.debug("Patterns:\n" + [self._patterns])
 		newThreads = []
 		# Clean threadlist, then update boards
 		await self.cleanup_untracked_boards()
@@ -37,7 +36,7 @@ class BoardWatcher:
 		return newThreads
 
 	async def update_board(self, board):
-		logger.info(f"checking for new threads on {board}")
+		logger.debug(f"checking for new threads on {board}")
 
 		# Get new threads from 4chan
 		liveThreads = await self._retrieve_threads(board)
@@ -78,6 +77,8 @@ class BoardWatcher:
 
 	def load_patterns(self, filename):
 		self._boards = set()	# Clear the bag of boards
+		self._patterns = {}
+		self._exclude_patterns = {}
 		with open(filename) as f:
 			for count, line in enumerate(f):
 				# Ignore commented or empty lines
