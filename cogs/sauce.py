@@ -72,6 +72,9 @@ class Sauce(commands.Cog):
             if info.get('url') and embed is None:
                 response_text += info['url'] + '\n'
 
+            # Suppress original embed when BoxBot creates its own
+            if embed is not None and len(images[:image_limit]) > 0:
+                await message.edit(flags=4)
             if extractor.hotlinking_allowed:
                 if embed is not None:
                     embed.set_image(url=images[0]) if images else 0
