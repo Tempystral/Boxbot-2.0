@@ -10,6 +10,14 @@ extensions = [
   "cogs.sauce"
 ] # Default extensions, no need to change
 
+ladles = [
+  "ESixPool",
+  "ESixPost",
+  "Furaffinity2",
+  "Pixiv",
+  "Imgur"
+  ] # Default extensions, no need to change
+
 [boardwatcher]
   patternfile = "./config/patterns.txt"
   regex = '(.+)\|(.*)\|(.+)' # Equivalent to raw string r'(.+)\|(.*)\|(.+)'
@@ -23,3 +31,7 @@ extensions = [
 [imgur]
   clientid = 'client id goes here'  # These values are assigned to your application
   secret = 'application secret'     # When you register it with Imgur
+
+[furaffinity]
+cookie = "__cfduid=something; b=something; a=something; n=something; cc=something"
+# Cookies should look something like this
