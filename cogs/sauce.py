@@ -3,14 +3,15 @@ import asyncio
 import aiohttp
 import discord
 from discord.ext import commands
-from utils import logger
-from ladles import *
+from utils import boxconfig, logger
+import ladles
 
 
 class Sauce(commands.Cog):
     def __init__(self, bot):
         self._bot = bot
-        self._extractors = [(re.compile(e.pattern), e) for e in [ESixPool(), ESixPost(), Furaffinity2(), Pixiv(), Imgur()]] # Twitter() is unnecessary as of 18/11/2019
+        extractors = [getattr(ladles, name)() for name in boxconfig.get("ladles")]
+        self._extractors = [(re.compile(e.pattern), e) for e in extractors]
         self._session = aiohttp.ClientSession()
 
     def __remove_spoilered_text(self, message) -> str:
