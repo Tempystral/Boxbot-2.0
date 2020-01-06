@@ -20,7 +20,7 @@ class Furaffinity2(BaseInfoExtractor):
         url = f'http://www.furaffinity.net/view/{submission_id}'
         async with session.get(url, headers={'Cookie': self._cookie}) as response:
             text = await response.read()
-            soup = BeautifulSoup(text)
+            soup = BeautifulSoup(text, "html.parser")
 
             title, _, author = soup.find('meta', property='og:title')['content'].rpartition(" by ")
             icon_url = 'https:' + soup.select('.classic-submission-title img.avatar')[0]['src']
