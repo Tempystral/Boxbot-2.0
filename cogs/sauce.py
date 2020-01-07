@@ -74,7 +74,15 @@ class Sauce(commands.Cog):
 
             # Suppress original embed when BoxBot creates its own
             if embed is not None and len(images[:image_limit]) > 0:
-                await message.edit(flags=4)
+                try:
+                    await message.edit(flags=4)
+                except discord.errors.Forbidden as e:
+                    if e.code == 50013:
+                        # 50013 just means we don't have manage_messages perms here. Not worth spamming logs for.
+                        pass
+                    else:
+                        logger.warning(f"Couldn't suppress embed in {message}'s message: {e}")
+
             if extractor.hotlinking_allowed:
                 if embed is not None:
                     embed.set_image(url=images[0]) if images else 0
