@@ -15,7 +15,6 @@ class ESixPool(BaseInfoExtractor):
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
         groups = re.match(self.pattern, url).groupdict()
         pool_id = groups['id']
-        pool_id = re.match(self.pattern, url).groupdict()['id']
 
         request_url = 'https://e621.net/pool/show.json?id=' + pool_id
         async with session.get(request_url, headers={'User-Agent': 'sauce/0.1'}) as response:
@@ -32,7 +31,25 @@ class ESixPool(BaseInfoExtractor):
                 title = None
             return {'title': title, 'description': data.get('description'), 'images': urls, 'count': data['post_count']}
 
+
 class ESixPost(BaseInfoExtractor):
+    def __init__(self):
+        self.pattern = r'https?://(?P<site>e621|e926)\.net/post/show/(?P<id>\d+)(/.*)'
+        self.hotlinking_allowed = True
+
+    async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
+        groups = re.match(self.pattern, url).groupdict()
+        post_id = groups['id']
+
+        request_url = 'https://e621.net/post/show.json?id=' + post_id
+        async with session.get(request_url, headers={'User-Agent': 'sauce/0.1'}) as response:
+            text = await response.read()
+            data = json.loads(text)
+            if data['file_ext'] in ['jpg', 'png', 'gif', 'webm']:
+                return {'images': [data['file_url']]}
+
+
+class ESixDirectLink(BaseInfoExtractor):
     '''Extractor to source E621 and E926 direct image links'''
     def __init__(self):
         self.pattern = r'https?://static1\.(?P<site>e621|e926)\.net/data/(sample/)?../../(?P<md5>\w+)\..*'
