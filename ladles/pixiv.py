@@ -16,8 +16,8 @@ _REQUESTS_KWARGS = {'verify': False}
 
 class Pixiv(BaseInfoExtractor):
     def __init__(self):
-        self.illust_pattern = r'https?://www.pixiv.net/[a-z]+/artworks/(?P<id1>\d+)'
-        self.direct_pattern = r'https://i.pximg.net/\S+/(?P<id2>\d+)_p(?P<page>\d+)(?:_\w+)?\.\w+'
+        self.illust_pattern = r'https?://www\.pixiv\.net/[a-z]+/artworks/(?P<id1>\d+)'
+        self.direct_pattern = r'https?://i\.pximg\.net/\S+/(?P<id2>\d+)_p(?P<page>\d+)(?:_\w+)?\.\w+'
         self.pattern = self.direct_pattern + '|' + self.illust_pattern
         self.hotlinking_allowed = False
 
@@ -26,8 +26,8 @@ class Pixiv(BaseInfoExtractor):
         try:
             loop.run_until_complete(
                 self.pixivapi.login(
-                    username=boxconfig.get("pixiv.email"), #self.config['pixiv']['login'],
-                    password=boxconfig.get("pixiv.password") #self.config['pixiv']['password'])
+                    username=boxconfig.get("pixiv.email"),
+                    password=boxconfig.get("pixiv.password")
             ))
             logger.info("Logged in to Pixiv")
         except RetryExhaustedError as e:
