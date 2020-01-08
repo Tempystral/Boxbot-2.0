@@ -33,5 +33,9 @@ ladles = [
   secret = 'application secret'     # When you register it with Imgur
 
 [furaffinity]
-cookie = "__cfduid=something; b=something; a=something; n=something; cc=something"
-# Cookies should look something like this
+  cookie = "__cfduid=something; b=something; a=something; n=something; cc=something"
+  # Cookies should look something like this
+
+[inkbunny]
+  username = "username"
+  password = 'password'

@@ -12,8 +12,8 @@ class InkBunny(BaseInfoExtractor):
 
     async def login(self, session: aiohttp.ClientSession):
       user_info = {
-        "username" : r'Tempystral',
-        "password" : r'*jQ0%#WvP!KJmCbs' #r'%2AjQ0%25%23WvP%21KJmCbs'
+        "username" : boxconfig.get("inkbunny.username"),
+        "password" : boxconfig.get("inkbunny.password")
       }
       async with session.get(url='https://inkbunny.net/api_login.php', params = user_info, headers = {'User-Agent': 'sauce/0.1'}) as response:
           text = await response.read()
