@@ -5,6 +5,14 @@ from discord.ext import commands
 from watcher.boardwatcher2 import BoardWatcher
 from utils import boxconfig, logger
 
+
+def find_role(guild, role_name):
+    for role in guild.roles:
+        if role.name == role_name:
+            return role
+    return None
+
+
 class ThreadWatcher(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
@@ -12,26 +20,56 @@ class ThreadWatcher(commands.Cog):
                                     regex=boxconfig.get("boardwatcher.regex"))
         self.active = False
         self.interval = 300
-        self._role = boxconfig.get("boardwatcher.notifyrole")
-        self._notify_channel = boxconfig.get("boardwatcher.notifychannel")
+        self._role = None
+        self._notify_channel = None
 
-    async def _update(self, context):
-        '''Update the boardwatcher'''
+    async def _update(self):
+        """Update the boardwatcher"""
         threads = await self.watcher.update()
         return threads
 
-    async def _getNewThreads(self, context):
-        '''Retrieve new threads from boardwatcher'''
-        threads = await self._update(context)
+    async def _getNewThreads(self):
+        """Retrieve new threads from boardwatcher"""
+        threads = await self._update()
         if len(threads) > 0:
             urls = [f"{thread.url}" for thread in threads]
             logger.info(f"New threads: {urls}")
-            await context.send("{role} Found {n} new threads(s):\n{ts}"
+            await self._notify_channel.send("{role} Found {n} new threads(s):\n{ts}"
                                .format(role = self._role, n=len(urls), ts="\n".join(urls)))
         else:
             logger.debug("No new threads")
         return len(threads)
 
+    async def _start(self, *, channel_id: int = None, role_name: str = None):
+        """Begin checking for threads"""
+        if channel_id:
+            self._notify_channel = self.bot.get_channel(channel_id)
+        elif self._notify_channel is None:
+            channel_id = int(boxconfig.get('boardwatcher.notifychannel'))
+            self._notify_channel = self.bot.get_channel(channel_id)
+        if self._notify_channel is None:
+            logger.error("No notification channel set")
+            return
+
+        if role_name:
+            self._role = find_role(self._notify_channel.guild, role_name)
+        elif self._role is None:
+            role_name = boxconfig.get('boardwatcher.notifyrole')
+            self._role = find_role(self._notify_channel.guild, role_name)
+        if self._role is None:
+            logger.warning("No notification role set")
+
+        self.active = True
+        while self.active:
+            logger.debug("Started checking for threads")
+            await self._getNewThreads()
+            await asyncio.sleep(self.interval)
+
+    @commands.Cog.listener()
+    async def on_ready(self):
+        await self._start()
+
+    @checks.in_guild(126921614603452416)
     @checks.has_role("Bot Developer")
     @commands.group(pass_context=True, aliases=["tw"])
     async def threadwatcher(self, context):
@@ -41,21 +79,18 @@ class ThreadWatcher(commands.Cog):
     @checks.has_role("Bot Developer")
     @threadwatcher.command()
     async def start(self, context):
-        '''Begin checking for threads'''
+        """Begin checking for threads"""
         if self.active:
             await context.send("Already checking for threads.")
             return
-        self.active = True
+
+        asyncio.create_task(self._start())
         await context.send("Started checking for threads.")
-        while self.active:
-            logger.debug("Started checking for threads")
-            await self._getNewThreads(context) #pylint false positive
-            await asyncio.sleep(self.interval)
 
     @checks.has_role("Bot Developer")
     @threadwatcher.command()
     async def stop(self, context):
-        '''Stop checking for new threads'''
+        """Stop checking for new threads"""
         if not self.active:
             return
         self.active = False
@@ -63,15 +98,15 @@ class ThreadWatcher(commands.Cog):
 
     @threadwatcher.command()
     async def check(self, context):
-        '''Manually check for new threads'''
-        i = await self._getNewThreads(context)
+        """Manually check for new threads"""
+        i = await self._getNewThreads()
         if i == 0:
             await context.send("No new threads.")
 
     @checks.has_role("Bot Developer")
     @threadwatcher.command()
     async def reset(self, context):
-        '''Manually clear tracked threads'''
+        """Manually clear tracked threads"""
         self.watcher.setTrackedThreads({})
         await context.send("Tracked threads reset.")
     
@@ -110,19 +145,19 @@ class ThreadWatcher(commands.Cog):
         
     @threadwatcher.command()
     async def setnotifyrole(self, context, role_name):
-        '''Set role to notify'''
-        g = context.message.guild
-        for role in g.roles:
-            if role.name == role_name:
-                self._role = role.mention
-                await context.send(f"I'll notify {role_name} of new threads.")
-                return
+        """Set role to notify"""
+        guild = context.message.guild
+        role = find_role(guild, role_name)
+        if role:
+            self._role = role
+            await context.send(f"I'll notify {role_name} of new threads.")
+            return
         await context.send("No such role found")
         logger.warning(f"Tried to set notification role \"{role_name}\", but no such role was found")
 
     @threadwatcher.command()
     async def setnotifychannel(self, context, channelName):
-        '''Set role to notify'''
+        """Set channel to notify"""
         g = context.message.guild
         for channel in g.channels:
             if channel.name == channelName:
@@ -131,6 +166,7 @@ class ThreadWatcher(commands.Cog):
                 return
         await context.send(f"Channel \"{channelName}\" not found")
         logger.warning(f"Tried to set notification channel \"{channelName}\", but no such channel was found")
+
 
 def setup(bot):
     bot.add_cog(ThreadWatcher(bot))
