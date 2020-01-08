@@ -8,9 +8,9 @@ class InkBunny(BaseInfoExtractor):
     def __init__(self):
         self.pattern = r'https?://.*inkbunny\.net/s/(?P<id>\d+)'
         self.hotlinking_allowed = True
-        self.__sid = None
+        self.__sid = "" # Cannot start as None or else requests fail-unsafe
 
-    async def login(self, session: aiohttp.ClientSession):
+    async def _login(self, session: aiohttp.ClientSession):
       user_info = {
         "username" : boxconfig.get("inkbunny.username"),
         "password" : boxconfig.get("inkbunny.password")
@@ -20,23 +20,29 @@ class InkBunny(BaseInfoExtractor):
           data = json.loads(text)
           try:
             sid = data["sid"]
-            return sid
+            logger.info(f"Obtained SID <{sid}> from Inkbunny")
+            self.__sid = sid
           except KeyError as e:
             logger.critical(f'Could not login to InkBunny:\nResponse from server: {data["error_message"]}')
 
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
+        if self.__sid == "":
+          await self._login(session)
         groups = re.match(self.pattern, url).groupdict()
         params = {
-          "sid" : self.__sid,
-          "submission_id" : groups['id']
+          "sid" : self.__sid, #r'R0p,EGAuQqrrOuX2zvMmZD61j4',#self.__sid,
+          "submission_ids" : groups['id']
         }
 
         request_url = 'https://inkbunny.net/api_submissions.php'
         async with session.get(request_url, params=params, headers={'User-Agent': 'sauce/0.1'}) as response:
             text = await response.read()
             data = json.loads(text)
+            #print(data)
             if "error_code" in data:
-              pass # Retry
+              if int(data["error_code"]) == 2:
+                await self._login(session) # Refresh SID
+                await self.extract(url, session)
             else:
               submission = scalpl.Cut(data["submissions"][0])
               # I like this for accessing nested json dicts, and the IB API is rather verbose

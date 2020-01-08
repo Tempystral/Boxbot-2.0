@@ -5,4 +5,6 @@ from .furaffinity import *
 from .furaffinity2 import *
 from .pixiv import *
 from .imgur import *
-# from .twitter import * - deprecated
+from .inkbunny import *
+
+# from .twitter import * (deprecated)
