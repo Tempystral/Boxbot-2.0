@@ -12,6 +12,10 @@ def has_role_id(role_id):
         return role_id in roles
     return commands.check(predicate)
 
+def in_guild(guild_id):
+    def predicate(ctx):
+        return guild_id == ctx.message.guild.id
+
 def debug():
     def predicate(ctx):
         print(ctx.__dict__)
