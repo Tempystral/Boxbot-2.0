@@ -15,6 +15,7 @@ def has_role_id(role_id):
 def in_guild(guild_id):
     def predicate(ctx):
         return guild_id == ctx.message.guild.id
+    return commands.check(predicate)
 
 def debug():
     def predicate(ctx):
