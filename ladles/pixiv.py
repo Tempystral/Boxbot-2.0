@@ -34,6 +34,7 @@ class Pixiv(BaseInfoExtractor):
             logger.critical("Could not login to Pixiv: " + str(e))
 
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
+        await self.pixivapi.login()
         if re.match(self.illust_pattern, url):
             return await self.extract_illust(url)
         else:
