@@ -35,7 +35,7 @@ class ThreadWatcher(commands.Cog):
             urls = [f"{thread.url}" for thread in threads]
             logger.info(f"New threads: {urls}")
             await self._notify_channel.send("{role} Found {n} new threads(s):\n{ts}"
-                               .format(role = self._role, n=len(urls), ts="\n".join(urls)))
+                               .format(role = self._role.mention, n=len(urls), ts="\n".join(urls)))
         else:
             logger.debug("No new threads")
         return len(threads)
