@@ -1,12 +1,7 @@
-import os
-import re
+import re, os, aiohttp
 
-import aiohttp
-import anyconfig
-
-from utils import logger
 from watcher import fourchanaio as fourchan
-
+from utils import logger
 
 class BoardWatcher:
 	def __init__(self, patternfile, regex):
@@ -19,7 +14,7 @@ class BoardWatcher:
 		self._patterns = {}
 		self._exclude_patterns = {}
 		self._boards = set()
-		self._tracked_threads = self.loadTrackedThreads()
+		self._tracked_threads = {}
 		try:
 			self.load_patterns(self._patternFile)
 		except FileNotFoundError:
@@ -38,7 +33,6 @@ class BoardWatcher:
 		for board in self._boards:
 			newMatchedThreads = await self.update_board(board)
 			newThreads.extend(newMatchedThreads)
-		self.saveTrackedThreads() # Last step, to ensure tracked threads are saved until the next session
 		return newThreads
 
 	async def update_board(self, board):
@@ -158,15 +152,7 @@ class BoardWatcher:
 			for thread in self._tracked_threads[board]:
 				print(self._tracked_threads[board][thread].url)
 	
-	def saveTrackedThreads(self):
-		anyconfig.dump(self._tracked_threads, "./watcher/tracked_threads.cache", ac_parser="json")
 	
-	def loadTrackedThreads(self):
-		try:
-			tt = anyconfig.load("./watcher/tracked_threads.cache", ac_parser="json")
-			return tt
-		except FileNotFoundError:
-			return {}
 
 	#==============================#
 	#				 Private methods			 #
