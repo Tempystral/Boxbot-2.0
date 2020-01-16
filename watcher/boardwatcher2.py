@@ -1,12 +1,7 @@
-import re
-import os
-
-import aiohttp
-import anyconfig
+import re, os, aiohttp
 
 from watcher import fourchanaio as fourchan
 from utils import logger
-from watcher import fourchanaio as fourchan
 
 class BoardWatcher:
 	def __init__(self, patternfile, regex):
@@ -19,7 +14,7 @@ class BoardWatcher:
 		self._patterns = {}
 		self._exclude_patterns = {}
 		self._boards = set()
-		self._tracked_threads = self.loadTrackedThreads()
+		self._tracked_threads = {}
 		try:
 			self.load_patterns(self._patternFile)
 		except FileNotFoundError:
@@ -38,7 +33,6 @@ class BoardWatcher:
 		for board in self._boards:
 			newMatchedThreads = await self.update_board(board)
 			newThreads.extend(newMatchedThreads)
-		self.saveTrackedThreads()
 		return newThreads
 
 	async def update_board(self, board):
@@ -157,22 +151,6 @@ class BoardWatcher:
 		for board in self._boards:
 			for thread in self._tracked_threads[board]:
 				print(self._tracked_threads[board][thread].url)
-
-	def saveTrackedThreads(self):
-		tracked_threads = {board: {
-			post_id: (post._data, post.board) for post_id, post in self._tracked_threads[board].items()
-		} for board in self._tracked_threads}
-		anyconfig.dump(tracked_threads, "./watcher/tracked_threads.cache", ac_parser="json")
-
-	def loadTrackedThreads(self):
-		try:
-			tracked_threads = anyconfig.load("./watcher/tracked_threads.cache", ac_parser="json")
-			return {board: {
-				# json only supports strings as keys, so post_id must be converted back to an int
-				int(post_id): fourchan.Post(*post) for post_id, post in tracked_threads[board].items()
-			} for board in tracked_threads}
-		except (FileNotFoundError, ValueError):
-			return {}
 	
 	
 
