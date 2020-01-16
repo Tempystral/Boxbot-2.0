@@ -34,7 +34,7 @@ class ESixPool(BaseInfoExtractor):
 
 class ESixPost(BaseInfoExtractor):
     def __init__(self):
-        self.pattern = r'https?://(?P<site>e621|e926)\.net/post/show/(?P<id>\d+)(/.*)'
+        self.pattern = r'https?://(?P<site>e621|e926)\.net/post/show/(?P<id>\d+)'
         self.hotlinking_allowed = True
 
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
