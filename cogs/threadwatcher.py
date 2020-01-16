@@ -69,7 +69,7 @@ class ThreadWatcher(commands.Cog):
     async def on_ready(self):
         await self._start()
 
-    @checks.in_guild(126921614603452416)
+    @checks.in_guild(int(boxconfig.get("serverid")))
     @checks.has_role("Bot Developer")
     @commands.group(pass_context=True, aliases=["tw"])
     async def threadwatcher(self, context):
@@ -84,7 +84,7 @@ class ThreadWatcher(commands.Cog):
             await context.send("Already checking for threads.")
             return
 
-        asyncio.create_task(self._start())
+        asyncio.get_event_loop().create_task(self._start()) # Compatible with 3.6+ -- calling create_task directly is 3.7+
         await context.send("Started checking for threads.")
 
     @checks.has_role("Bot Developer")
