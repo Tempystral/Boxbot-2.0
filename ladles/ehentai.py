@@ -9,7 +9,9 @@ class EHentai(BaseInfoExtractor):
         self.pattern = r'https?://(?P<site>e-|ex)hentai\.org/(?P<type>g|s)/(?P<group_1>\w+)/(?P<group_2>\w+)(-(?P<page_num>\d+))?'
         self.hotlinking_allowed = True
         self._request_url = 'https://api.e-hentai.org/api.php'
-        self._restricted_tags = ["abortion", "bestiality", "incest", "lolicon", "shotacon", "toddlercon"]
+        self._restricted_tags = [
+          "abortion", "bestiality", "lolicon", "shotacon", "toddlercon", #"incest"
+        ]
 
     async def __get_gallery_token(self, page_token: str, gallery_id: int, page_num: int, session: aiohttp.ClientSession) -> str:
       params = {
