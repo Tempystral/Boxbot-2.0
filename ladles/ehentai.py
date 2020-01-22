@@ -61,7 +61,7 @@ class EHentai(BaseInfoExtractor):
       async with session.post(self._request_url, json=params, headers={'User-Agent': 'sauce/0.1'}) as response:
           text = await response.read()
           data = json.loads(text)
-          print(data)
+          #print(data)
           if "error" in data:
             logger.critical(f'E-Hentai API error: {data["error"]}')
           else:
