@@ -20,11 +20,11 @@ class EHentai(BaseInfoExtractor):
           text = await response.read()
           data = json.loads(text)
           #print(data)
-          try:
-            gdata = data["tokenlist"]
-          except KeyError as e:
-            logger.critical(f'E-Hentai API error: {data["error"]}')
-          return gdata[0]["token"]
+          gdata = data["tokenlist"][0]
+          if "error" in gdata:
+            logger.critical(f'E-Hentai API error: {gdata["error"]}')
+          else:
+            return gdata[0]["token"]
 
     def __is_restricted(self, tags: list) -> bool:
       for tag in tags:
@@ -45,7 +45,10 @@ class EHentai(BaseInfoExtractor):
     async def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
       gallery_id = None
       gallery_token = None
-      groups = re.match(self.pattern, url).groupdict()
+      try:
+        groups = re.match(self.pattern, url).groupdict()
+      except AttributeError as e:
+        logger.warning(f"Ladle triggered, but match was invalid. Input: {url}")
       if groups["type"] == "s":
         gallery_id = int(groups["group_2"])
         gallery_token = await self.__get_gallery_token(groups["group_1"], gallery_id, groups["page_num"], session)
@@ -63,9 +66,15 @@ class EHentai(BaseInfoExtractor):
           data = json.loads(text)
           #print(data)
           if "error" in data:
-            logger.critical(f'E-Hentai API error: {data["error"]}')
+            logger.critical(f'E-Hentai API error: {data["error"]} Url: {url}')
+            return {}
+
+          metadata = scalpl.Cut(data["gmetadata"][0]) # This will only work for single requests. This logic will need to change to accomodate multi-gallery requests
+
+          if "error" in metadata:
+            logger.critical(f'E-Hentai API error: {metadata["error"]} Url: {url}')
+            return {}
           else:
-            metadata = scalpl.Cut(data["gmetadata"][0]) # This will only work for single requests. This logic will need to change to accomodate multi-gallery requests
             title = str(metadata.get("title")).replace("\n", " ") # Covers the edge case of a newline in the title data
             thumb = [metadata.get("thumb")]
             #count = int(metadata.get("filecount"))
