@@ -6,5 +6,6 @@ from .furaffinity2 import *
 from .pixiv import *
 from .imgur import *
 from .inkbunny import *
+from .ehentai import *
 
 # from .twitter import * (deprecated)

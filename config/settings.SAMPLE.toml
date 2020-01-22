@@ -15,7 +15,9 @@ ladles = [
   "ESixPost",
   "Furaffinity2",
   "Pixiv",
-  "Imgur"
+  "Imgur",
+  "InkBunny",
+  "EHentai"
   ] # Default extensions, no need to change
 
 [boardwatcher]

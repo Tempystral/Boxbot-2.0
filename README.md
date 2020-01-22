@@ -7,8 +7,7 @@
   Boxbot replaces much of the functionality of SauceBot, and extends its features to include more websites. Components are maintained through extensions called "ladles".
 ### Pixiv
   - Posts and albums are embedded with a preview, up to 3 images max.
-  - Ugoira does not work at this time (January 2020)
-  - Note: this component is unfinished as of January 2020.
+  - Ugoira does not work at this time (January 2020).
 ### Furaffinity
   - Explicit links are embedded with submission info and an image.
 ### e621/e926
@@ -17,9 +16,14 @@
 ### Imgur
   - Multi-image albums are embedded with a description and previews.
   - Sound from Imgur videos does not work due to their unique implementation of webm.
+### Inkbunny
+  - Albums are embedded with a description and previews.
+  - Mature or Explicit links are handled for users who are not logged in.
+### E-Hentai Galleries
+  - Gallery links and individual pages are sourced back to the original gallery page.
+  - ExHentai links are sourced back to e-hentai when possible.
 ### Planned Ladles
-  - Inkbunny
-  - Sadpanda/E-Hentai Galleries
+  - Weasyl
 
 ## Threadwatcher
   - Boxbot automatically searches for 4chan threads according to tags you set.
