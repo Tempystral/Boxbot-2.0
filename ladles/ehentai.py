@@ -1,4 +1,4 @@
-import asyncio, aiohttp, json, os, re, scalpl
+import asyncio, aiohttp, json, os, re, scalpl, html
 from typing import Dict, Optional
 from utils import boxconfig, logger
 from . import BaseInfoExtractor
@@ -81,7 +81,7 @@ class EHentai(BaseInfoExtractor):
             description += self.__tags_to_string(tags)
 
             return {'url': gallery_url, # Redundant in many cases but it's not a lot of overhead for the cases where we sauce pages within a gallery
-                    'title': title,
+                    'title': html.unescape(title),
                     #'count': count,
                     'description': description,
                     'images': thumb}
