@@ -44,7 +44,7 @@ class Sauce(commands.Cog):
         for match, extractor in links[:3]:
             image_limit = 3
 
-            info = await extractor.extract(match.string, self._session)
+            info = await extractor.extract(match.string, self._session) # Exceptions which cause the function to fail should return None
             if info is None:
                 continue
 

@@ -11,6 +11,7 @@ class BaseInfoExtractor(ABC):
     @abstractmethod
     def extract(self, url: str, session: aiohttp.ClientSession) -> Optional[Dict]:
         pass
+    # Exceptions which cause the function to fail should return None
 
     def findall(self, string: str) -> Iterable[Match]:
         return list(self.pattern.finditer(string))
