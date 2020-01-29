@@ -3,6 +3,21 @@ from typing import Dict, Optional
 from utils import boxconfig, logger
 from . import BaseInfoExtractor
 
+class EHentaiApiError(ValueError):
+  def __init__(self, message):
+    super().__init__(message)
+    self.message = message
+
+class EHGalleryTokenError(EHentaiApiError):
+  def __init__(self, message):
+    super().__init__(message)
+    self.message = message
+
+class EHMetadataError(EHentaiApiError):
+  def __init__(self, expression, message):
+    super().__init__(message)
+    self.message = message
+    self.expression = expression
 
 class EHentai(BaseInfoExtractor):
     def __init__(self):
@@ -14,6 +29,10 @@ class EHentai(BaseInfoExtractor):
         ]
 
     async def __get_gallery_token(self, page_token: str, gallery_id: int, page_num: int, session: aiohttp.ClientSession) -> str:
+      if page_num == None:
+        raise EHGalleryTokenError(f'Gallery token requested for page, but no page number was included.')
+      # Good response: {'tokenlist': [{'gid': 1234567, 'token': 'aw3o8fja83'}]}
+      # Bad response:  {'tokenlist': [{'gid': 1136045, 'error': 'invalid or malformed arguments'}]}
       params = {
         "method": "gtoken",
         "pagelist": [[gallery_id, page_token, page_num]]
@@ -21,11 +40,9 @@ class EHentai(BaseInfoExtractor):
       async with session.post(self._request_url, json = params, headers = {'User-Agent': 'sauce/0.1'}) as response:
           text = await response.read()
           data = json.loads(text)
-          #print(data)
           gdata = data["tokenlist"][0]
           if "error" in gdata:
-            logger.critical(f'E-Hentai API error: {gdata["error"]}')
-            return None
+            raise EHGalleryTokenError(f'E-Hentai API error: {gdata["error"]}')
           else:
             return gdata["token"]
 
@@ -55,11 +72,16 @@ class EHentai(BaseInfoExtractor):
         return None
       if groups["type"] == "s":
         gallery_id = int(groups["group_2"])
-        gallery_token = await self.__get_gallery_token(groups["group_1"], gallery_id, groups["page_num"], session)
+        try:
+          gallery_token = await self.__get_gallery_token(groups["group_1"], gallery_id, groups["page_num"], session)
+        except EHentaiApiError:
+          raise
       elif groups["type"] == "g":
         gallery_id = int(groups["group_1"])
         gallery_token = groups["group_2"]
       
+      # Good response: {'gmetadata': [{'gid': 1234567, 'token': '0asfh80qw8', 'archiver_key': etc... ]}]}
+      # Bad response:  {'gmetadata': [{'gid': 1234567, 'error': 'Key missing, or incorrect key provided.'}]}
       params = {
         "method" : "gdata",
         "gidlist" : [[gallery_id, gallery_token]],
@@ -68,16 +90,14 @@ class EHentai(BaseInfoExtractor):
       async with session.post(self._request_url, json=params, headers={'User-Agent': 'sauce/0.1'}) as response:
           text = await response.read()
           data = json.loads(text)
-          #print(data)
+          #print(f"Response for gdata request {url}: {data}")
           if "error" in data:
-            logger.critical(f'E-Hentai API error: {data["error"]} Url: {url}')
-            return None
-
+            raise EHMetadataError(url, f'E-Hentai API error: {data["error"]}')
+          
           metadata = scalpl.Cut(data["gmetadata"][0]) # This will only work for single requests. This logic will need to change to accomodate multi-gallery requests
 
           if "error" in metadata:
-            logger.critical(f'E-Hentai API error: {metadata["error"]} Url: {url}')
-            return None
+            raise EHMetadataError(url, f'E-Hentai API error: {metadata["error"]}')
           else:
             title = str(metadata.get("title")).replace("\n", " ") # Covers the edge case of a newline in the title data
             thumb = [metadata.get("thumb")]

@@ -1,10 +1,13 @@
-import re
 import asyncio
+import re
+
 import aiohttp
 import discord
 from discord.ext import commands
-from utils import boxconfig, logger
+
 import ladles
+from ladles.ehentai import EHentaiApiError
+from utils import boxconfig, logger
 
 
 class Sauce(commands.Cog):
@@ -44,7 +47,11 @@ class Sauce(commands.Cog):
         for match, extractor in links[:3]:
             image_limit = 3
 
-            info = await extractor.extract(match.string, self._session) # Exceptions which cause the function to fail should return None
+            try:
+                info = await extractor.extract(match.string, self._session) # Exceptions which cause the function to fail should return None
+            except EHentaiApiError as ehx:
+                logger.warning(ehx.message)
+                continue
             if info is None:
                 continue
 
