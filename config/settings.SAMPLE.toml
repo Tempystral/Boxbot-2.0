@@ -26,18 +26,22 @@ ladles = [
   notifychannel = "1234567890" # Channel ID
   notifyrole = "" # String name of role, i.e. "Thread_Notify"
 
-[pixiv]
-  email = ""    # Login email address for Pixiv
-  password = '' # Single quotes force value to be read as raw string
-
-[imgur]
-  clientid = 'client id goes here'  # These values are assigned to your application
-  secret = 'application secret'     # When you register it with Imgur
+[e621]
+  username = ""
+  apikey = ''
 
 [furaffinity]
   cookie = "__cfduid=something; b=something; a=something; n=something; cc=something"
   # Cookies should look something like this
 
+[imgur]
+  clientid = 'client id goes here'  # These values are assigned to your application
+  secret = 'application secret'     # When you register it with Imgur
+
 [inkbunny]
   username = "username"
   password = 'password'
+
+[pixiv]
+  email = ""    # Login email address for Pixiv
+  password = '' # Single quotes force value to be read as raw string
