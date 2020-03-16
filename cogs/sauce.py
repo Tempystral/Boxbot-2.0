@@ -48,7 +48,7 @@ class Sauce(commands.Cog):
             image_limit = 3
 
             try:
-                info = await extractor.extract(match.string, self._session) # Exceptions which cause the function to fail should return None
+                info = await extractor.extract(match[0], self._session) # Exceptions which cause the function to fail should return None
             except EHentaiApiError as ehx:
                 logger.warning(ehx.message)
                 continue
