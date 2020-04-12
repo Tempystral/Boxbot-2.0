@@ -5,7 +5,7 @@ from typing import Optional, Dict
 
 import aiohttp
 
-from utils import boxconfig
+from utils import boxconfig, commaList
 
 from . import BaseInfoExtractor
 
@@ -29,7 +29,7 @@ class ESixApi:
             text = await response.read()
             result = json.loads(text)
 
-        self._sleep = asyncio.create_task(asyncio.sleep(0.5))
+        self._sleep = asyncio.get_event_loop().create_task(asyncio.sleep(0.5))
         return result
 
 
@@ -66,10 +66,20 @@ class ESixPost(BaseInfoExtractor):
         data = await _api.get(f'/posts/{post_id}.json', session)
         post = data['post']
         tags = post['tags']['general']
+        #print(data)
+        
+        # Determine if post is embed-blacklisted
         blacklisted = any([tag in tags for tag in ['loli', 'shota']])
         blacklisted = blacklisted or ('young' in tags and not post['rating'] == 's')
-        if post['file']['ext'] in ['jpg', 'png', 'gif', 'webm'] and blacklisted:
-            return {'images': [post['file']['url']]}
+        if blacklisted:
+            images = {'images': [post['file']['url']]}
+            if post['file']['ext'] in ['webm']:
+                return images
+            if post['file']['ext'] in ['jpg', 'png', 'gif']:
+                characters = post["tags"]["character"]
+                artists = post["tags"]["artist"]
+                title = f"{commaList(characters)} drawn by {commaList(artists)}"
+                return {'url': url, 'title': title, 'description': post["description"], 'images': [post['file']['url']]}
 
 
 class ESixDirectLink(BaseInfoExtractor):
