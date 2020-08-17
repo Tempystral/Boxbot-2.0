@@ -47,11 +47,12 @@ class InkBunny(BaseInfoExtractor):
               submission = scalpl.Cut(data["submissions"][0])
               # I like this for accessing nested json dicts, and the IB API is rather verbose
               author = submission.get("username")
-              author_icon = submission.get("user_icon_url_small")
+              author_icon = submission.get("user_icon_url_small") or r'https://qc.ib.metapix.net/images78/usericons/large/noicon.png' # in the event of no icon
               images = [f.get("file_url_full") for f in submission.get("files")]
               num_images = submission.get("pagecount")
               title = submission.get("title")
               rating = submission.get("rating_id") # 0: General, 1: Mature, 2: Adult
+              #logger.info(data["submissions"][0])
 
               return {'url': url,
                       'name': author,
