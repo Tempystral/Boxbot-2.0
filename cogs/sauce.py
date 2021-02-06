@@ -55,16 +55,18 @@ class Sauce(commands.Cog):
             if info is None:
                 continue
 
+            # Break out data into chunks
             images = info.get('images') or []
             total_images = info.get('count') or len(images) if images else 0
-
-            embed = None
-            embed_info = {k: info[k] for k in info.keys() & ['title', 'description', 'thumbnail']}
+            embed_info = {k: info[k] for k in info.keys() & ['title', 'description', 'thumbnail', "url"]}
             author_info = {k: info[k] for k in info.keys() & ['name', 'icon_url']}
 
-            if embed_info and info.get('url'):
-                embed_info['url'] = info['url']
-            if embed_info or author_info:
+            # Create embed
+            embed = None
+
+            #if embed_info and info.get('url'):
+            #    embed_info['url'] = info['url']
+            if embed_info:
                 embed = discord.Embed(**embed_info)
             if info.get('thumbnail'):
                 embed.set_thumbnail(url=info['thumbnail'])
