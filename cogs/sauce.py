@@ -24,6 +24,16 @@ class Sauce(commands.Cog):
         despoilered += strs[-1] if len(strs) % 2 == 0 else ''
         return despoilered
 
+    async def __suppressMessage(self, message:discord.Message):
+        try:
+            await message.edit(flags=4)
+        except discord.errors.Forbidden as e:
+            if e.code == 50013:
+                # 50013 just means we don't have manage_messages perms here. Not worth spamming logs for.
+                pass
+            else:
+                logger.warning(f"Couldn't suppress embed in {message}'s message: {e}")
+
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.guild is None:
@@ -55,54 +65,50 @@ class Sauce(commands.Cog):
             if info is None:
                 continue
 
+            # Break out data into chunks
             images = info.get('images') or []
             total_images = info.get('count') or len(images) if images else 0
-
-            embed = None
-            embed_info = {k: info[k] for k in info.keys() & ['title', 'description', 'thumbnail']}
+            embed_info = {k: info[k] for k in info.keys() & ['title', 'description', 'thumbnail', "url"]}
             author_info = {k: info[k] for k in info.keys() & ['name', 'icon_url']}
 
-            if embed_info and info.get('url'):
-                embed_info['url'] = info['url']
-            if embed_info or author_info:
+            # Create embed
+            embed = None
+
+            if embed_info:
                 embed = discord.Embed(**embed_info)
-            if info.get('thumbnail'):
-                embed.set_thumbnail(url=info['thumbnail'])
-            if author_info:
-                embed.set_author(**author_info)
+            if embed:
+                if info.get('thumbnail'):
+                    embed.set_thumbnail(url=info['thumbnail'])
+                if author_info:
+                    embed.set_author(**author_info)
 
             # TODO: handle embedding better, especially when the first post is already embedded by discord
 
             response_text = ''
             if total_images > 1:
-                response_text += f'Set contains {total_images} images:\n'
+                response_text += f'Set contains {total_images} images.\n'
             if info.get('url') and embed is None:
                 response_text += info['url'] + '\n'
 
             # Suppress original embed when BoxBot creates its own
             if embed is not None and len(images[:image_limit]) > 0:
-                try:
-                    await message.edit(flags=4)
-                except discord.errors.Forbidden as e:
-                    if e.code == 50013:
-                        # 50013 just means we don't have manage_messages perms here. Not worth spamming logs for.
-                        pass
-                    else:
-                        logger.warning(f"Couldn't suppress embed in {message}'s message: {e}")
+                await self.__suppressMessage(message)
 
-            if extractor.hotlinking_allowed:
+            if extractor.hotlinking_allowed: # Posts the next x images from an album if the site supports it
                 if embed is not None:
                     embed.set_image(url=images[0]) if images else 0
                     await message.channel.send(embed=embed)
-                    images = images[1:]
+
+                    images = images[1:] # Count down images and add to list for posting
                     image_limit -= 1
-                    
                 if len(images[:image_limit]) > 0:
                     response_text += '\n'.join(images[:image_limit])
-                if response_text:
+                if len(response_text) > 0:
                     await message.channel.send(response_text)
-            else:
+
+            else: # Some sites like Pixiv do not allow image hotlinking (easily)
                 if embed is not None:
+                    #embed.set_image(url=images[0]) if images else 0
                     await message.channel.send(embed=embed)
                 files = [await extractor.download(i, self._session) for i in images[:image_limit]]
                 if response_text or files:

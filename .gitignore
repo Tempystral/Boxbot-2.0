@@ -136,3 +136,4 @@ dmypy.json
 test.json
 watcher/tracked_threads.cache
 boxbot.code-workspace
+chromedriver.exe
