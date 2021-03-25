@@ -1,4 +1,5 @@
 aiohttp
+aiohttp_socks
 aiofiles
 asyncio
 discord.py
@@ -9,3 +10,5 @@ html2text
 bs4
 requests
 pixivpy-async
+selenium
+yarl == 1.4.2
