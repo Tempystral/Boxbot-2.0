@@ -8,7 +8,7 @@ import aiohttp
 from pixivpy_async import AppPixivAPI
 from pixivpy_async.error import RetryExhaustedError
 
-from utils import boxconfig, logger
+from utils import boxconfig, logger, pixiv_auth
 
 from . import BaseInfoExtractor
 
@@ -25,9 +25,11 @@ class Pixiv(BaseInfoExtractor):
         self.pixivapi = AppPixivAPI()
         try:
             loop.run_until_complete(
+                
                 self.pixivapi.login(
-                    username=boxconfig.get("pixiv.email"),
-                    password=boxconfig.get("pixiv.password")
+                    #username=boxconfig.get("pixiv.email"),
+                    #password=boxconfig.get("pixiv.password"),
+                    refresh_token=pixiv_auth.refresh(boxconfig.get("pixiv.refresh_token"))
             ))
             logger.info("Logged in to Pixiv")
         except RetryExhaustedError as e:
@@ -71,11 +73,15 @@ class Pixiv(BaseInfoExtractor):
         if details.illust.x_restrict == 0 and page == '0':
             return {'url': pixiv_url}
         else:
-
-            return {'url': url, 'name': details.illust.user.name, 'title': details.illust.title,
-                    'description': details.illust.caption,
-                    'thumbnail': 'https://s.pximg.net/www/images/pixiv_logo.gif?2', 'images': [url],
-                    'count': details.illust.page_count}
+            response = {
+                'url': pixiv_url,
+                'name': details.illust.user.name,
+                'title': details.illust.title,
+                'description': details.illust.caption,
+                'thumbnail': 'https://s.pximg.net/www/images/pixiv_logo.gif?2',
+                'images': [url],
+                'count': details.illust.page_count}
+            return response
 
     @staticmethod
     async def download(url: str, session: aiohttp.ClientSession) -> BytesIO:

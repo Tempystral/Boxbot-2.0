@@ -101,7 +101,7 @@ class EHentai(BaseInfoExtractor):
           else:
             title = str(metadata.get("title")).replace("\n", " ") # Covers the edge case of a newline in the title data
             thumb = [metadata.get("thumb")]
-            #count = int(metadata.get("filecount"))
+            count = int(metadata.get("filecount"))
             tags = metadata.get("tags")
             description = ""
             if groups["site"] == "ex":
@@ -115,6 +115,6 @@ class EHentai(BaseInfoExtractor):
 
             return {'url': gallery_url, # Redundant in many cases but it's not a lot of overhead for the cases where we sauce pages within a gallery
                     'title': html.unescape(title),
-                    #'count': count,
+                    'count': count,
                     'description': description,
                     'images': thumb}
