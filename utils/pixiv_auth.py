@@ -15,6 +15,8 @@ from urllib.parse import urlencode
 from selenium import webdriver
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
+from utils import boxconfig
+
 
 # Latest app version can be found using GET /v1/application-info/android
 USER_AGENT = "PixivAndroidApp/5.0.234 (Android 11; Pixel 5)"
@@ -130,6 +132,9 @@ def refresh(refresh_token):
         headers={"User-Agent": USER_AGENT},
     )
     new_response = get_auth_token_response(response)
+    if new_response != response:
+        boxconfig.put("pixiv.refresh_token", new_response)
+        boxconfig.saveConfig()
     return new_response
 
 def main():
