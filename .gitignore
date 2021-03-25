@@ -4,6 +4,7 @@
 test.py
 config/settings.toml
 config/patterns.txt
+config/**backup**
 *.log
 
 # Byte-compiled / optimized / DLL files
