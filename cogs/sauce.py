@@ -70,6 +70,7 @@ class Sauce(commands.Cog):
             total_images = info.get('count') or len(images) if images else 0
             embed_info = {k: info[k] for k in info.keys() & ['title', 'description', 'thumbnail', "url"]}
             author_info = {k: info[k] for k in info.keys() & ['name', 'icon_url']}
+            suppress_true = {k: info[k] for k in info.keys() & ['suppress']}
 
             # Create embed
             embed = None
@@ -91,7 +92,7 @@ class Sauce(commands.Cog):
                 response_text += info['url'] + '\n'
 
             # Suppress original embed when BoxBot creates its own
-            if embed is not None and len(images[:image_limit]) > 0:
+            if embed is not None and len(images[:image_limit]) > 0 or info["suppress"] == True:
                 await self.__suppressMessage(message)
 
             if extractor.hotlinking_allowed: # Posts the next x images from an album if the site supports it
