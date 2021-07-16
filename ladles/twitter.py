@@ -18,8 +18,24 @@ class Twitter(BaseInfoExtractor):
         tweet_id = re.match(self.pattern, url).groupdict()['id']
         author = re.match(self.pattern, url).groupdict()['author']
 
-        return {"images": [f"http://box.tempystral.live:5000/{author}/status/{tweet_id}"],
+        async with session.get(
+            url = f'https://api.twitter.com/2/timeline/conversation/{tweet_id}.json?tweet_mode=extended',
+            #params = params,
+            headers = { 'authorization': self.auth, "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.10; rv:38.0) Gecko/20100101 Firefox/38.0"}
+        ) as response:
+            text = await response.read()
+            data = scalpl.Cut(json.loads(text))
+            #print(data)
+
+            tweet = f"globalObjects.tweets.{tweet_id}"
+            media_type = data.get(f"{tweet}.extended_entities.media[0].type")
+            if media_type == "video":
+                return {"images": [f"http://box.tempystral.live:5000/{author}/status/{tweet_id}"],
                 "suppress": True}
+            else:
+                return None
+
+        
 
 
         # async with session.get(
